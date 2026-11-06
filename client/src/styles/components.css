@@ -40,6 +40,7 @@
 .nav-item.active { color: #fff; background: rgba(255, 255, 255, 0.14); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.12); }
 .nav-item .ico-wrap {
   width: 30px; height: 30px; border-radius: 10px; display: grid; place-items: center; flex: 0 0 auto;
+  background: rgba(255, 255, 255, 0.08);
 }
 .nav-item .ico-wrap svg { width: 20px; height: 20px; }
 .nav-item .ico-wrap svg, .nav-item .ico-wrap svg * { stroke: currentColor !important; fill: none !important; }

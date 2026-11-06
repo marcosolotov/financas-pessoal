@@ -43,7 +43,6 @@ const SettingsIcon = () => (
 const TABS = [
   { to: '/', label: 'Início', Icon: HomeIcon },
   { to: '/renda', label: 'Entradas', Icon: InIcon },
-  { to: '__add', label: 'Adicionar', Icon: AddIcon },
   { to: '/gastos', label: 'Saídas', Icon: OutIcon },
   { to: '/investimentos', label: 'Investimentos', Icon: InvestIcon },
   { to: '/ajustes', label: 'Ajustes', Icon: SettingsIcon }
