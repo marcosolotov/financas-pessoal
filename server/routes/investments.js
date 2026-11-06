@@ -7,10 +7,10 @@ router.use(requireAuth);
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
-// Valor em centavos (inteiro positivo)
+// Valor em centavos (inteiro, pode ser negativo para rendimento/perda)
 function centsOf(v) {
   const n = Number(v);
-  return Number.isInteger(n) && n > 0 ? n : null;
+  return Number.isInteger(n) ? n : null;
 }
 
 function monthBounds(s) {
@@ -47,6 +47,8 @@ router.post('/', (req, res) => {
   if (!nm) return res.status(400).json({ error: 'Informe o nome do ativo.' });
   const value = centsOf(value_cents);
   if (value === null) return res.status(400).json({ error: 'Valor inválido.' });
+  if (kind === 'aporte' && value <= 0) return res.status(400).json({ error: 'O aporte deve ser positivo.' });
+  if (kind === 'rendimento' && value === 0) return res.status(400).json({ error: 'O rendimento não pode ser zero.' });
   if (!DATE_RE.test(String(date || ''))) return res.status(400).json({ error: 'Data inválida.' });
 
   const info = db.prepare('INSERT INTO investments (user_id, name, kind, value_cents, date, notes) VALUES (?, ?, ?, ?, ?, ?)')
@@ -66,6 +68,8 @@ router.put('/:id', (req, res) => {
   if (!name) return res.status(400).json({ error: 'Nome inválido.' });
   const value = body.value_cents !== undefined ? centsOf(body.value_cents) : inv.value_cents;
   if (value === null) return res.status(400).json({ error: 'Valor inválido.' });
+  if (kind === 'aporte' && value <= 0) return res.status(400).json({ error: 'O aporte deve ser positivo.' });
+  if (kind === 'rendimento' && value === 0) return res.status(400).json({ error: 'O rendimento não pode ser zero.' });
   const date = body.date ?? inv.date;
   if (!DATE_RE.test(String(date))) return res.status(400).json({ error: 'Data inválida.' });
   const notes = body.notes !== undefined ? String(body.notes).trim() : inv.notes;

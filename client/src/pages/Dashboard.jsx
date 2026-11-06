@@ -73,7 +73,7 @@ export default function Dashboard() {
             <div className="summary-card hero">
               <span className="label">Saldo atual · {ymLabel(month)}</span>
               <span className="value money">{formatBRL(summary.saldoAtual)}</span>
-              <span className="tag">Em carteira {formatBRL(summary.emCarteira)} · Investido {formatBRL(summary.investido)}</span>
+              <span className="tag">Investido {formatBRL(summary.investido)}</span>
             </div>
             <div className="summary-card glass">
               <span className="label">Saldo anterior</span>

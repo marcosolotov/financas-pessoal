@@ -83,15 +83,19 @@ export default function TransactionFormModal() {
 
   async function submit() {
     const cents = parseBRLToCents(value);
-    if (cents === null || cents <= 0) return setError('Informe um valor válido.');
+    if (cents === null) return setError('Informe um valor válido.');
     if (!date) return setError('Informe a data.');
 
     const base = { type, value_cents: cents, date };
     let payload;
     if (isInv) {
-      if (!name.trim()) return setError('Informe o nome do ativo.');
-      payload = { ...base, name: name.trim(), kind, notes: desc || null };
+      const nm = name.trim();
+      if (!nm) return setError('Informe o nome do ativo.');
+      if (kind === 'aporte' && cents <= 0) return setError('O aporte deve ser positivo.');
+      if (kind === 'rendimento' && cents === 0) return setError('O rendimento não pode ser zero.');
+      payload = { ...base, name: nm, kind, notes: desc || null };
     } else {
+      if (cents <= 0) return setError('O valor deve ser positivo.');
       if (!catId) return setError('Escolha uma categoria.');
       payload = { ...base, category_id: Number(catId), description: desc || null };
     }

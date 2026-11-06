@@ -12,13 +12,13 @@ export function formatBRLCompact(cents) {
   return formatBRL(n);
 }
 
-// converte texto digitado "12,50" / "12.50" / "1200" -> centavos inteiros
+// converte texto digitado "12,50" / "12.50" / "1200" / "-5,00" -> centavos inteiros (pode ser negativo)
 export function parseBRLToCents(text) {
   if (text == null) return null;
   const s = String(text).trim().replace(/[R$\s.]/g, '').replace(',', '.');
-  if (!s || !/^(\d+)(\.\d{1,2})?$/.test(s)) return null;
+  if (!s || !/^-?(\d+)(\.\d{1,2})?$/.test(s)) return null;
   const num = Math.round(Number(s) * 100);
-  return Number.isInteger(num) && num >= 0 ? num : null;
+  return Number.isInteger(num) ? num : null;
 }
 
 // centavos -> localidade do input de dinheiro (ex.: "12,50")
