@@ -31,17 +31,17 @@
   z-index: 50;
 }
 .nav-item {
-  flex: 1; height: 44px; border-radius: 26px;
-  display: flex; align-items: center; justify-content: center; gap: 5px;
+  flex: 1; height: 56px; border-radius: 20px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
   font-size: 11px; font-weight: 700; color: var(--ink-2);
   transition: all 0.18s cubic-bezier(0.2, 0.9, 0.3, 1.2);
   white-space: nowrap;
 }
 .nav-item.active { color: #fff; background: rgba(255, 255, 255, 0.14); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.12); }
-.nav-item .ico { width: 16px; height: 16px; display: inline-block; flex: 0 0 auto; }
-.nav-item .ico svg { width: 16px; height: 16px; }
+.nav-item .ico { width: 26px; height: 26px; display: block; flex: 0 0 auto; }
+.nav-item .ico svg { width: 26px; height: 26px; }
 .nav-item .ico svg, .nav-item .ico svg * { stroke: currentColor !important; fill: none !important; }
-.nav-item .lab { font-size: 10px; line-height: 1; white-space: nowrap; }
+.nav-item .lab { font-size: 10px; line-height: 1; white-space: nowrap; margin-top: 2px; }
 
 /* ===== FAB ===== */
 .fab {
