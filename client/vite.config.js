@@ -1,0 +1,1 @@
+// (config movida para a raiz do projeto — ver /vite.config.js)
