@@ -41,12 +41,22 @@
 .nav-item .lab { line-height: 1; }
 .nav-item:active { transform: scale(0.94); }
 .fab-circle {
-  flex: 1.1; height: 46px; margin: -20px 0 0; border-radius: 50%;
+  position: relative; top: -14px;
+  width: 48px; height: 48px; min-width: 48px; margin: 0 auto;
+  border-radius: 50%;
   background: linear-gradient(160deg, #0a84ff, #6e8bff);
-  color: #fff; font-size: 26px; font-weight: 300;
+  color: #fff; font-size: 26px; font-weight: 300; line-height: 1;
   box-shadow: 0 12px 26px rgba(10, 132, 255, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  display: grid; place-items: center;
 }
 .fab-circle:active { transform: scale(0.9); }
+
+/* Ícones monocromáticos da nav (mesma cor do texto) */
+.nav-item .ico {
+  width: 18px; height: 18px; display: inline-block;
+}
+.nav-item .ico svg { width: 18px; height: 18px; }
+.nav-item .ico svg, .nav-item .ico svg * { stroke: currentColor !important; fill: none !important; }
 
 /* ===== FAB ===== */
 .fab {
