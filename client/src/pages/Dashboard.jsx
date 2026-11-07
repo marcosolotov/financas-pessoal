@@ -4,16 +4,17 @@ import { useAuth } from '../context/AuthContext.jsx';
 import { useMonth } from '../context/MonthContext.jsx';
 import { useUI } from '../context/UIContext.jsx';
 import { formatBRL } from '../utils/money.js';
-import { ymLabel } from '../utils/month.js';
+import { ymLabel, prevYM } from '../utils/month.js';
 import MonthPicker from '../components/MonthPicker.jsx';
 import TransactionList from '../components/TransactionList.jsx';
-import { TrendBar, CategoryPie } from '../components/Charts.jsx';
+import { TrendBar, PatrimonyLine, CategoryPie } from '../components/Charts.jsx';
 
 export default function Dashboard() {
   const { user } = useAuth();
   const { month } = useMonth();
   const { refreshKey, openAdd, toast, bumpRefresh } = useUI();
   const [summary, setSummary] = useState(null);
+  const [previousMonthInvestment, setPreviousMonthInvestment] = useState(0);
   const [trend, setTrend] = useState([]);
   const [breakdown, setBreakdown] = useState([]);
   const [recent, setRecent] = useState([]);
@@ -25,13 +26,15 @@ export default function Dashboard() {
     setLoading(true);
     Promise.all([
       api('/summary', { params: { month } }),
+      api('/summary', { params: { month: prevYM(month) } }),
       api('/summary/trend', { params: { months: 12 } }),
       api('/summary/breakdown', { params: { month, type: pieType } }),
       api('/transactions', { params: { month } })
     ])
-      .then(([s, t, b, tx]) => {
+      .then(([s, previous, t, b, tx]) => {
         if (!on) return;
         setSummary(s);
+        setPreviousMonthInvestment(previous.investido);
         setTrend(t.series);
         setBreakdown(b.breakdown);
         setRecent(tx.transactions.slice(0, 8));
@@ -76,15 +79,6 @@ export default function Dashboard() {
               <span className="tag">Investido {formatBRL(summary.investido)}</span>
             </div>
             <div className="summary-card glass">
-              <span className="label">Saldo anterior</span>
-              <span className="value money">{formatBRL(summary.saldoAnterior)}</span>
-            </div>
-            <div className="summary-card glass">
-              <span className="label">Investido no mês</span>
-              <span className="value money">{formatBRL(summary.investidoNoMes.total)}</span>
-              <span className="tag">+{formatBRL(summary.investidoNoMes.rendimentos)} de rendimento</span>
-            </div>
-            <div className="summary-card glass">
               <span className="label">Entradas</span>
               <span className="value money positive">{formatBRL(summary.entradas)}</span>
             </div>
@@ -92,11 +86,25 @@ export default function Dashboard() {
               <span className="label">Saídas</span>
               <span className="value money negative">{formatBRL(summary.saidas)}</span>
             </div>
+            <div className="summary-card glass">
+              <span className="label">Investido até o mês anterior</span>
+              <span className="value money">{formatBRL(previousMonthInvestment)}</span>
+            </div>
+            <div className="summary-card glass">
+              <span className="label">Investido no mês</span>
+              <span className="value money">{formatBRL(summary.investidoNoMes.total)}</span>
+              <span className="tag">
+                <span className={summary.investidoNoMes.rendimentos >= 0 ? 'positive' : 'negative'}>
+                  {summary.investidoNoMes.rendimentos >= 0 ? '↑' : '↓'}
+                </span>{' '}
+                {formatBRL(summary.investidoNoMes.rendimentos)} de rendimento
+              </span>
+            </div>
           </div>
 
           <section className="section">
             <div className="section-head">
-              <span className="h2">Evolução · 12 meses</span>
+              <span className="h2">Entradas, saídas e investimentos · 12 meses</span>
             </div>
             <div className="chart-card glass">
               <TrendBar data={trend} />
@@ -105,10 +113,19 @@ export default function Dashboard() {
 
           <section className="section">
             <div className="section-head">
+              <span className="h2">Evolução do patrimônio investido · 12 meses</span>
+            </div>
+            <div className="chart-card glass">
+              <PatrimonyLine data={trend} />
+            </div>
+          </section>
+
+          <section className="section">
+            <div className="section-head">
               <span className="h2">Distribuição</span>
               <div className="seg" style={{ maxWidth: 190 }}>
-                <button className={`on green`} style={pieType === 'expense' ? {} : { opacity: 0.5 }} onClick={() => setPieType('expense')}>Saídas</button>
-                <button className={`on purple`} style={pieType === 'income' ? {} : { opacity: 0.5 }} onClick={() => setPieType('income')}>Entradas</button>
+                <button className="on green" style={pieType === 'income' ? {} : { opacity: 0.5 }} onClick={() => setPieType('income')}>Entradas</button>
+                <button className="on red" style={pieType === 'expense' ? {} : { opacity: 0.5 }} onClick={() => setPieType('expense')}>Saídas</button>
               </div>
             </div>
             <div className="chart-card glass">

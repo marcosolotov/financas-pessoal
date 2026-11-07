@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext.jsx';
 import { useUI } from '../context/UIContext.jsx';
 import { parseBRLToCents, centsToInput } from '../utils/money.js';
 import CategoryModal from '../components/CategoryModal.jsx';
+import { loadGoogleIdentity, requestDriveAccessToken, uploadBackupToDrive } from '../utils/googleDrive.js';
 
 export default function Settings() {
   const { user, logout, updateUser } = useAuth();
@@ -14,6 +15,10 @@ export default function Settings() {
   const [startIn, setStartIn] = useState(centsToInput(user?.start_balance_cents || 0));
   const [pw, setPw] = useState('');
   const [saving, setSaving] = useState(false);
+  const [driveClientId, setDriveClientId] = useState(() => localStorage.getItem('googleDriveClientId') || '');
+  const [driveReady, setDriveReady] = useState(false);
+  const [backupBusy, setBackupBusy] = useState(false);
+  const [reportBusy, setReportBusy] = useState(false);
 
   // categorias
   const [catType, setCatType] = useState('expense');
@@ -29,6 +34,10 @@ export default function Settings() {
       })
       .catch(() => {});
   }, [refreshKey]);
+
+  useEffect(() => {
+    loadGoogleIdentity().then(() => setDriveReady(true)).catch(() => setDriveReady(false));
+  }, []);
 
   async function saveAccount() {
     setSaving(true);
@@ -59,13 +68,94 @@ export default function Settings() {
     }
   }
 
+  function downloadFile(content, filename, type) {
+    const url = URL.createObjectURL(new Blob([content], { type }));
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
+  async function downloadDatabaseBackup() {
+    setBackupBusy(true);
+    try {
+      const backup = await api('/settings/backup');
+      const date = new Date().toISOString().slice(0, 10);
+      downloadFile(JSON.stringify(backup, null, 2), `controle-financeiro-backup-${date}.json`, 'application/json');
+      toast('Backup baixado');
+    } catch (e) {
+      toast(e.message);
+    } finally {
+      setBackupBusy(false);
+    }
+  }
+
+  async function backupToGoogleDrive() {
+    const clientId = driveClientId.trim();
+    if (!clientId) return toast('Informe o ID de cliente OAuth do Google.');
+    if (!driveReady) return toast('Serviços do Google ainda não carregaram.');
+    localStorage.setItem('googleDriveClientId', clientId);
+    setBackupBusy(true);
+    try {
+      const [accessToken, backup] = await Promise.all([
+        requestDriveAccessToken(clientId),
+        api('/settings/backup')
+      ]);
+      const date = new Date().toISOString().slice(0, 10);
+      await uploadBackupToDrive(accessToken, JSON.stringify(backup, null, 2), `controle-financeiro-backup-${date}.json`);
+      toast('Backup enviado para o Google Drive');
+    } catch (e) {
+      toast(e.message);
+    } finally {
+      setBackupBusy(false);
+    }
+  }
+
+  async function generateMonthlyReport() {
+    setReportBusy(true);
+    try {
+      const { rows } = await api('/settings/report');
+      const headers = [
+        'Mês',
+        'Proventos somados do mês',
+        'Investimento anterior acumulado',
+        'Investimento do mês somado',
+        'Rendimento do mês somado',
+        'Investimento atual total do mês'
+      ];
+      const decimalBRL = (cents) => (Number(cents || 0) / 100).toFixed(2).replace('.', ',');
+      const csv = [
+        headers.join(';'),
+        ...rows.map((r) => [
+          `${r.month.slice(5, 7)}/${r.month.slice(0, 4)}`,
+          decimalBRL(r.proventos_cents),
+          decimalBRL(r.investimento_anterior_cents),
+          decimalBRL(r.investimento_mes_cents),
+          decimalBRL(r.rendimento_mes_cents),
+          decimalBRL(r.investimento_atual_cents)
+        ].join(';'))
+      ].join('\r\n');
+      const date = new Date().toISOString().slice(0, 10);
+      downloadFile(`\uFEFF${csv}`, `relatorio-financeiro-${date}.csv`, 'text/csv;charset=utf-8');
+      toast('Planilha gerada');
+    } catch (e) {
+      toast(e.message);
+    } finally {
+      setReportBusy(false);
+    }
+  }
+
   const cats = catType === 'income' ? income : expense;
+  const firstName = (user?.name || '').split(' ')[0];
 
   return (
     <>
       <header className="page-head">
         <div className="title">
-          <small>⚙️ Ajustes</small>
+          <small>Olá, {firstName}</small>
           <span className="h1">Ajustes</span>
         </div>
       </header>
@@ -114,6 +204,39 @@ export default function Settings() {
         <button className="btn ghost" style={{ marginTop: 12 }} onClick={() => setModal({ open: true, item: null, type: catType })}>
           ＋ Nova categoria de {catType === 'expense' ? 'saída' : 'entrada'}
         </button>
+      </section>
+
+      <section className="section">
+        <div className="section-head">
+          <span className="h2">Backup e relatórios</span>
+        </div>
+        <div className="glass settings-backup-card">
+          <div className="field">
+            <label>ID de cliente OAuth do Google</label>
+            <input
+              className="input"
+              value={driveClientId}
+              onChange={(e) => {
+                setDriveClientId(e.target.value);
+                localStorage.setItem('googleDriveClientId', e.target.value);
+              }}
+              placeholder="...apps.googleusercontent.com"
+              autoCapitalize="none"
+              autoCorrect="off"
+            />
+            <small className="muted">No Google Cloud, ative a Drive API e autorize o endereço HTTPS do app como origem JavaScript.</small>
+          </div>
+          <button className="btn" onClick={backupToGoogleDrive} disabled={backupBusy || !driveReady}>
+            {backupBusy ? 'Preparando backup…' : 'Fazer backup no Google Drive'}
+          </button>
+          <button className="btn ghost" style={{ marginTop: 10 }} onClick={downloadDatabaseBackup} disabled={backupBusy}>
+            Baixar backup dos meus dados
+          </button>
+          <button className="btn ghost" style={{ marginTop: 10 }} onClick={generateMonthlyReport} disabled={reportBusy}>
+            {reportBusy ? 'Gerando planilha…' : 'Gerar planilha mensal'}
+          </button>
+          <small className="muted settings-backup-note">O backup inclui os dados desta conta e não inclui senhas nem dados de outros usuários. A planilha abre no Excel, Numbers e Google Sheets.</small>
+        </div>
       </section>
 
       <button className="btn danger" onClick={logout}>Sair da conta</button>

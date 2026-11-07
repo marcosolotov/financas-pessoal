@@ -140,7 +140,7 @@ export default function TransactionFormModal() {
 
         <div className="field">
           <label>Valor (R$)</label>
-          <input className="input money" inputMode="decimal" placeholder="0,00" value={value} onChange={(e) => setValue(e.target.value)} />
+          <input className="input money" inputMode={isInv ? 'text' : 'decimal'} placeholder="0,00" value={value} onChange={(e) => setValue(e.target.value)} />
           {value && <small className="muted">{formatBRL(parseBRLToCents(value) || 0)}</small>}
         </div>
 

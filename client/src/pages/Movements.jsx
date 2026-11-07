@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { api } from '../api.js';
+import { useAuth } from '../context/AuthContext.jsx';
 import { useMonth } from '../context/MonthContext.jsx';
 import { useUI } from '../context/UIContext.jsx';
 import { formatBRL } from '../utils/money.js';
@@ -7,6 +8,9 @@ import MonthPicker from '../components/MonthPicker.jsx';
 import TransactionList from '../components/TransactionList.jsx';
 
 export default function Movements({ type, title, icon, accent }) {
+  const { user } = useAuth();
+  const firstName = (user?.name || '').split(' ')[0];
+  const pageTitle = title || (type === 'income' ? 'Entradas' : 'Saídas');
   const { month } = useMonth();
   const { refreshKey, openAdd, toast, bumpRefresh } = useUI();
   const [items, setItems] = useState([]);
@@ -39,16 +43,17 @@ export default function Movements({ type, title, icon, accent }) {
     <>
       <header className="page-head">
         <div className="title">
-          <small>{icon} {title}</small>
-          <span className="h1">{title}</span>
-        </div>
-        <div className={`summary-card glass`} style={{ minWidth: 120 }}>
-          <span className="label">Total do mês</span>
-          <span className={`value money ${accent}`}>{formatBRL(total)}</span>
+          <small>Olá, {firstName}</small>
+          <span className="h1">{pageTitle}</span>
         </div>
       </header>
 
       <MonthPicker />
+
+      <div className={`summary-card glass movement-total ${accent}`}>
+        <span className="label">Total do mês</span>
+        <span className="value money">{formatBRL(total)}</span>
+      </div>
 
       {loading ? (
         <div className="spin" />

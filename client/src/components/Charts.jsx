@@ -1,8 +1,8 @@
 import {
-  ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
+  ResponsiveContainer, BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
   PieChart, Pie, Cell, Legend
 } from 'recharts';
-import { formatBRL } from '../utils/money.js';
+import { formatBRL, formatBRLCompact } from '../utils/money.js';
 
 function TooltipGlass({ active, payload, label }) {
   if (!active || !payload || !payload.length) return null;
@@ -22,15 +22,29 @@ function TooltipGlass({ active, payload, label }) {
 export function TrendBar({ data }) {
   return (
     <ResponsiveContainer width="100%" height={220}>
-      <BarChart data={data} margin={{ top: 4, right: 4, left: -18, bottom: 0 }} barGap={3}>
+      <BarChart data={data} margin={{ top: 18, right: 8, left: 8, bottom: 0 }} barGap={6} barCategoryGap="18%">
         <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.07)" vertical={false} />
         <XAxis dataKey="label" tick={{ fill: 'rgba(235,235,245,0.5)', fontSize: 11 }} axisLine={false} tickLine={false} interval={1} />
-        <YAxis tick={{ fill: 'rgba(235,235,245,0.4)', fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={(v) => (v >= 1000 ? `${(v / 1000).toFixed(0)}k` : v)} />
+        <YAxis width={46} tick={{ fill: 'rgba(235,235,245,0.4)', fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={formatBRLCompact} />
         <Tooltip content={<TooltipGlass />} cursor={{ fill: 'rgba(255,255,255,0.06)' }} />
-        <Bar name="Entradas" dataKey="entradas" fill="#30d158" radius={[5, 5, 0, 0]} maxBarSize={16} />
-        <Bar name="Saídas" dataKey="saidas" fill="#ff453a" radius={[5, 5, 0, 0]} maxBarSize={16} />
-        <Bar name="Investimentos" dataKey="investimentos" fill="#bf5af2" radius={[5, 5, 0, 0]} maxBarSize={16} />
+        <Bar name="Entradas" dataKey="entradas" fill="#30d158" radius={[5, 5, 0, 0]} maxBarSize={24} />
+        <Bar name="Saídas" dataKey="saidas" stackId="expenses-investments" fill="#ff453a" radius={[0, 0, 0, 0]} maxBarSize={24} />
+        <Bar name="Investimentos" dataKey="investimentos" stackId="expenses-investments" fill="#bf5af2" radius={[5, 5, 0, 0]} maxBarSize={24} />
       </BarChart>
+    </ResponsiveContainer>
+  );
+}
+
+export function PatrimonyLine({ data }) {
+  return (
+    <ResponsiveContainer width="100%" height={220}>
+      <LineChart data={data} margin={{ top: 18, right: 8, left: 8, bottom: 0 }}>
+        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.07)" vertical={false} />
+        <XAxis dataKey="label" tick={{ fill: 'rgba(235,235,245,0.5)', fontSize: 11 }} axisLine={false} tickLine={false} interval={1} />
+        <YAxis width={46} tick={{ fill: 'rgba(235,235,245,0.4)', fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={formatBRLCompact} />
+        <Tooltip content={<TooltipGlass />} cursor={{ stroke: 'rgba(255,255,255,0.18)' }} />
+        <Line name="Patrimônio investido" dataKey="patrimonioInvestido" type="monotone" stroke="#bf5af2" strokeWidth={3} dot={false} activeDot={{ r: 5, fill: '#d9a5ff' }} />
+      </LineChart>
     </ResponsiveContainer>
   );
 }

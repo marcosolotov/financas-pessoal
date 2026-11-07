@@ -1,6 +1,6 @@
 :root {
-  --bg-0: #050507;
-  --bg-1: #0a0a12;
+  --bg-0: #1a0a2e;
+  --bg-1: #1a0a2e;
   --ink: rgba(255, 255, 255, 0.92);
   --ink-2: rgba(235, 235, 245, 0.65);
   --ink-3: rgba(235, 235, 245, 0.42);
@@ -14,29 +14,26 @@
   --purple: #bf5af2;
   --amber: #ffd60a;
   --radius: 24px;
+  --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --font: -apple-system, BlinkMacSystemFont, 'SF Pro Text', '.SF NS', 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
-html, body { height: 100%; }
+html, body { height: 100%; background-color: #1a0a2e; }
 
 body {
   font-family: var(--font);
   color: var(--ink);
-  background:
-    radial-gradient(1200px 800px at 90% -10%, rgba(10, 132, 255, 0.22), transparent 60%),
-    radial-gradient(1000px 700px at -10% 20%, rgba(191, 90, 242, 0.20), transparent 60%),
-    radial-gradient(900px 700px at 60% 110%, rgba(48, 209, 88, 0.12), transparent 60%),
-    linear-gradient(160deg, var(--bg-1), var(--bg-0));
+  background: #1a0a2e;
   background-attachment: fixed;
   overscroll-behavior-y: none;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
 }
 
-#root { min-height: 100%; }
+/* Removido body::before - causava sobreposição de conteúdo */
 
 button { font-family: var(--font); cursor: pointer; border: none; background: none; color: inherit; }
 input, textarea, select { font-family: var(--font); font-size: 16px; color: var(--ink); outline: none; }
@@ -46,7 +43,7 @@ input, textarea, select { font-family: var(--font); font-size: 16px; color: var(
   max-width: 600px;
   margin: 0 auto;
   min-height: 100vh;
-  padding: 18px 14px calc(96px + var(--safe-bottom));
+  padding: 28px 14px calc(170px + var(--safe-bottom));
   position: relative;
 }
 @media (min-width: 700px) {
@@ -101,9 +98,19 @@ input, textarea, select { font-family: var(--font); font-size: 16px; color: var(
 .summary-card { padding: 14px; display: flex; flex-direction: column; gap: 4px; }
 .summary-card .label { font-size: 12px; color: var(--ink-2); font-weight: 600; }
 .summary-card .value { font-size: 19px; font-weight: 700; letter-spacing: -0.01em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.summary-card.hero { grid-column: 1 / -1; background: var(--glass-strong); }
+.summary-card.hero { grid-column: 1 / -1; background: var(--glass-strong); border-radius: var(--radius); }
 .summary-card.hero .value { font-size: 30px; }
 .summary-card .tag { font-size: 11px; color: var(--ink-3); font-weight: 600; }
+.investment-range { display: grid; width: 100%; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: end; gap: 10px; margin: 0 0 10px; }
+.investment-range label { display: flex; flex-direction: column; gap: 7px; width: 100%; min-width: 0; color: var(--ink-2); font-size: 13px; font-weight: 600; }
+.investment-range input[type='month'] { display: block; width: 100%; min-width: 0; max-width: 100%; box-sizing: border-box; padding: 12px 8px; color-scheme: dark; -webkit-appearance: none; appearance: none; }
+@media (max-width: 480px) {
+  .investment-range { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+}
+.settings-backup-card { padding: 16px; }
+.settings-backup-note { display: block; margin-top: 14px; line-height: 1.45; }
+.movement-total { width: 100%; margin: -4px 0 18px; padding: 16px; border-radius: 20px; }
+.movement-total .value { font-size: 24px; }
 .positive { color: var(--green); }
 .negative { color: var(--red); }
 .purple { color: var(--purple); }

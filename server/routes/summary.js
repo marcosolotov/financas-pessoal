@@ -61,7 +61,7 @@ router.get('/', (req, res) => {
   res.json({
     month,
     saldoAnterior: cashStart + investedStart,
-    saldoAtual: cashEnd + investedEnd,
+    saldoAtual: cashEnd,
     emCarteira: cashEnd,
     investido: investedEnd,
     entradas: income,
@@ -72,20 +72,63 @@ router.get('/', (req, res) => {
 
 // GET /api/summary/trend?months=12 -> barras por mês
 router.get('/trend', (req, res) => {
-  const months = Math.min(36, Math.max(1, Number(req.query.months) || 12));
   const now = new Date();
   const labels = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+  const hasRange = req.query.from != null || req.query.to != null;
+  let periods;
+
+  if (hasRange) {
+    const from = req.query.from;
+    const to = req.query.to;
+    if (!/^\d{4}-\d{2}$/.test(from || '') || !/^\d{4}-\d{2}$/.test(to || '')) {
+      return res.status(400).json({ error: 'Informe um intervalo de meses válido.' });
+    }
+    const [fromYear, fromMonth] = from.split('-').map(Number);
+    const [toYear, toMonth] = to.split('-').map(Number);
+    const startIndex = fromYear * 12 + fromMonth - 1;
+    const endIndex = toYear * 12 + toMonth - 1;
+    if (fromMonth < 1 || fromMonth > 12 || toMonth < 1 || toMonth > 12 || endIndex < startIndex) {
+      return res.status(400).json({ error: 'Intervalo de meses inválido.' });
+    }
+    if (endIndex - startIndex >= 12) {
+      return res.status(400).json({ error: 'O intervalo máximo é de 12 meses.' });
+    }
+    periods = [];
+    for (let index = startIndex; index <= endIndex; index++) {
+      const year = Math.floor(index / 12);
+      const month = index % 12 + 1;
+      periods.push(`${year}-${String(month).padStart(2, '0')}`);
+    }
+  } else {
+    const months = Math.min(36, Math.max(1, Number(req.query.months) || 12));
+    periods = [];
+    for (let i = months - 1; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      periods.push(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`);
+    }
+  }
+
   const series = [];
-  for (let i = months - 1; i >= 0; i--) {
-    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    const ym = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+  const firstMonth = periods[0];
+  if (!firstMonth) return res.json({ series });
+  let invested = sumInvBefore(req.userId, 'aporte', `${firstMonth}-01`)
+    + sumInvBefore(req.userId, 'rendimento', `${firstMonth}-01`);
+  for (const ym of periods) {
+    const [year, month] = ym.split('-').map(Number);
     const { start, end } = monthBounds(ym);
+    const aportes = sumInvBetween(req.userId, 'aporte', start, end);
+    const rendimentos = sumInvBetween(req.userId, 'rendimento', start, end);
+    const monthlyInvestments = aportes + rendimentos;
+    invested += monthlyInvestments;
     series.push({
       month: ym,
-      label: `${labels[d.getMonth()]}/${String(d.getFullYear()).slice(2)}`,
+      label: `${labels[month - 1]}/${String(year).slice(2)}`,
       entradas: sumTypeBetween(req.userId, 'income', start, end),
       saidas: sumTypeBetween(req.userId, 'expense', start, end),
-      investimentos: sumInvBetween(req.userId, 'aporte', start, end) + sumInvBetween(req.userId, 'rendimento', start, end)
+      investimentos: monthlyInvestments,
+      aportes,
+      rendimentos,
+      patrimonioInvestido: invested
     });
   }
   res.json({ series });
