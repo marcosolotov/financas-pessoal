@@ -30,6 +30,7 @@
   box-shadow: 0 24px 50px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.22);
   z-index: 50;
 }
+.nav-brand { display: none; }
 .nav-item {
   flex: 1; height: 56px; border-radius: 20px;
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
@@ -107,3 +108,54 @@ input[type='color'] { padding: 4px; height: 46px; }
 .color-dots { display: flex; flex-wrap: wrap; gap: 10px; }
 .color-dot { width: 34px; height: 34px; border-radius: 12px; border: 2px solid transparent; }
 .color-dot.on { border-color: #fff; transform: scale(1.12); }
+
+/* Menu lateral em telas de desktop; deixa a barra inferior para telas menores. */
+@media (min-width: 900px) {
+  .bottom-nav {
+    top: 24px;
+    left: 24px;
+    bottom: 24px;
+    transform: none;
+    width: 220px;
+    max-width: none;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    gap: 8px;
+    padding: 16px 12px;
+    border-radius: 28px;
+  }
+  .nav-brand {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 6px 8px 18px;
+    margin-bottom: 8px;
+    border-bottom: 1px solid var(--glass-border);
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+  .nav-brand-mark {
+    width: 38px;
+    height: 38px;
+    border-radius: 13px;
+    display: block;
+    object-fit: cover;
+    background: transparent;
+  }
+  .nav-item {
+    flex: 0 0 auto;
+    width: 100%;
+    height: 54px;
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 12px;
+    padding: 0 10px;
+    border-radius: 16px;
+    font-size: 14px;
+  }
+  .nav-item.active { transform: none; }
+  .nav-item .ico-wrap { width: 34px; height: 34px; border-radius: 11px; }
+  .nav-item .lab { font-size: 14px; margin-top: 0; }
+}

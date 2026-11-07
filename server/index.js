@@ -15,6 +15,7 @@ import summaryRoutes from './routes/summary.js';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
+const HOST = process.env.HOST || '0.0.0.0';
 
 app.use(cors());
 app.use(express.json());
@@ -42,6 +43,6 @@ app.use((err, _req, res, _next) => {
   res.status(500).json({ error: err.message || 'Erro interno.' });
 });
 
-app.listen(PORT, '0.0.0.0', () => {
+app.listen(PORT, HOST, () => {
   console.log(`Controle Financeiro rodando em http://localhost:${PORT}`);
 });

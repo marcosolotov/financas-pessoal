@@ -70,7 +70,7 @@ export default function Investments() {
   }
 
   return (
-    <div>
+    <div className="investments-page">
       <header className="page-head">
         <div className="title">
           <small>Olá, {firstName}</small>
@@ -78,13 +78,13 @@ export default function Investments() {
         </div>
       </header>
 
-      <MonthPicker />
+      <MonthPicker onAdd={() => openAdd('investment')} addLabel="Adicionar" />
 
       {loading && !summary ? (
         <div className="spin" />
       ) : (
         <div>
-          <div className="summary-grid">
+          <div className="summary-grid investment-summary-grid">
             <div className="summary-card hero">
               <span className="label">Total investido (carteira)</span>
               <span className="value money">{formatBRL(summary.investido)}</span>
@@ -116,7 +116,7 @@ export default function Investments() {
               </label>
             </div>
             <div className="chart-card glass">
-              <PatrimonyLine data={trend} />
+              <PatrimonyLine data={trend} height={270} />
             </div>
           </section>
 
@@ -157,8 +157,6 @@ export default function Investments() {
           </section>
         </div>
       )}
-
-      <button className="fab" aria-label="Adicionar investimento" onClick={() => openAdd('investment')}>＋</button>
     </div>
   );
 }

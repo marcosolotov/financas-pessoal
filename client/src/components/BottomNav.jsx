@@ -59,7 +59,11 @@ export default function BottomNav() {
   }
 
   return (
-    <nav className="bottom-nav">
+    <nav className="bottom-nav" aria-label="Navegação principal">
+      <div className="nav-brand">
+        <img className="nav-brand-mark" src="/icon.png" alt="" />
+        <span>Controle<br />Financeiro</span>
+      </div>
       {TABS.map((t) => (
         <button
           key={t.to}

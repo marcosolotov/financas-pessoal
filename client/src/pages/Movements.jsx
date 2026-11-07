@@ -48,7 +48,7 @@ export default function Movements({ type, title, icon, accent }) {
         </div>
       </header>
 
-      <MonthPicker />
+      <MonthPicker onAdd={() => openAdd(type)} />
 
       <div className={`summary-card glass movement-total ${accent}`}>
         <span className="label">Total do mês</span>
@@ -60,8 +60,6 @@ export default function Movements({ type, title, icon, accent }) {
       ) : (
         <TransactionList transactions={items} onEdit={(t) => openAdd(type, t)} onDelete={remove} />
       )}
-
-      <button className="fab" aria-label="Adicionar" onClick={() => openAdd(type)}>＋</button>
     </>
   );
 }

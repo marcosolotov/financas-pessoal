@@ -19,9 +19,9 @@ function TooltipGlass({ active, payload, label }) {
   );
 }
 
-export function TrendBar({ data }) {
+export function TrendBar({ data, height = 220 }) {
   return (
-    <ResponsiveContainer width="100%" height={220}>
+    <ResponsiveContainer width="100%" height={height}>
       <BarChart data={data} margin={{ top: 18, right: 8, left: 8, bottom: 0 }} barGap={6} barCategoryGap="18%">
         <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.07)" vertical={false} />
         <XAxis dataKey="label" tick={{ fill: 'rgba(235,235,245,0.5)', fontSize: 11 }} axisLine={false} tickLine={false} interval={1} />
@@ -35,9 +35,9 @@ export function TrendBar({ data }) {
   );
 }
 
-export function PatrimonyLine({ data }) {
+export function PatrimonyLine({ data, height = 220 }) {
   return (
-    <ResponsiveContainer width="100%" height={220}>
+    <ResponsiveContainer width="100%" height={height}>
       <LineChart data={data} margin={{ top: 18, right: 8, left: 8, bottom: 0 }}>
         <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.07)" vertical={false} />
         <XAxis dataKey="label" tick={{ fill: 'rgba(235,235,245,0.5)', fontSize: 11 }} axisLine={false} tickLine={false} interval={1} />
@@ -49,13 +49,21 @@ export function PatrimonyLine({ data }) {
   );
 }
 
-export function CategoryPie({ data }) {
+export function CategoryPie({ data, height = 200, compact = false }) {
   const total = data.reduce((s, d) => s + d.total, 0);
   return (
     <div style={{ width: '100%' }}>
-      <ResponsiveContainer width="100%" height={200}>
+      <ResponsiveContainer width="100%" height={height}>
         <PieChart>
-          <Pie data={data} dataKey="total" nameKey="name" innerRadius={52} outerRadius={78} paddingAngle={3} stroke="none">
+          <Pie
+            data={data}
+            dataKey="total"
+            nameKey="name"
+            innerRadius={compact ? 34 : 52}
+            outerRadius={compact ? 52 : 78}
+            paddingAngle={3}
+            stroke="none"
+          >
             {data.map((d, i) => <Cell key={i} fill={d.color} />)}
           </Pie>
           <Tooltip content={<TooltipGlass />} />
@@ -63,7 +71,7 @@ export function CategoryPie({ data }) {
             verticalAlign="bottom"
             iconType="circle"
             iconSize={8}
-            wrapperStyle={{ fontSize: 11, color: 'rgba(235,235,245,0.75)' }}
+            wrapperStyle={{ fontSize: compact ? 9 : 11, color: 'rgba(235,235,245,0.75)' }}
           />
         </PieChart>
       </ResponsiveContainer>

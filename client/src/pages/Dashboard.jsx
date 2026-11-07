@@ -72,7 +72,7 @@ export default function Dashboard() {
         <div className="spin" />
       ) : (
         <>
-          <div className="summary-grid">
+          <div className="summary-grid dashboard-summary-grid">
             <div className="summary-card hero">
               <span className="label">Saldo atual · {ymLabel(month)}</span>
               <span className="value money">{formatBRL(summary.saldoAtual)}</span>
@@ -102,44 +102,46 @@ export default function Dashboard() {
             </div>
           </div>
 
-          <section className="section">
-            <div className="section-head">
-              <span className="h2">Entradas, saídas e investimentos · 12 meses</span>
-            </div>
-            <div className="chart-card glass">
-              <TrendBar data={trend} />
-            </div>
-          </section>
-
-          <section className="section">
-            <div className="section-head">
-              <span className="h2">Evolução do patrimônio investido · 12 meses</span>
-            </div>
-            <div className="chart-card glass">
-              <PatrimonyLine data={trend} />
-            </div>
-          </section>
-
-          <section className="section">
-            <div className="section-head">
-              <span className="h2">Distribuição</span>
-              <div className="seg" style={{ maxWidth: 190 }}>
-                <button className="on green" style={pieType === 'income' ? {} : { opacity: 0.5 }} onClick={() => setPieType('income')}>Entradas</button>
-                <button className="on red" style={pieType === 'expense' ? {} : { opacity: 0.5 }} onClick={() => setPieType('expense')}>Saídas</button>
+          <div className="dashboard-panels">
+            <section className="section dashboard-trend-panel">
+              <div className="section-head">
+                <span className="h2">Entradas, saídas e investimentos · 12 meses</span>
               </div>
-            </div>
-            <div className="chart-card glass">
-              <CategoryPie data={breakdown} />
-            </div>
-          </section>
+              <div className="chart-card glass">
+                <TrendBar data={trend} height={260} />
+              </div>
+            </section>
 
-          <section className="section">
-            <div className="section-head">
-              <span className="h2">Movimentações recentes</span>
-              <span className="sub" onClick={() => (window.location.hash = '#/renda')}>ver todas</span>
-            </div>
-            <TransactionList transactions={recent} onEdit={(t) => openAdd(t.type, t)} onDelete={remove} />
-          </section>
+            <section className="section dashboard-patrimony-panel">
+              <div className="section-head">
+                <span className="h2">Evolução do patrimônio investido · 12 meses</span>
+              </div>
+              <div className="chart-card glass">
+                <PatrimonyLine data={trend} height={260} />
+              </div>
+            </section>
+
+            <section className="section dashboard-distribution-panel">
+              <div className="section-head">
+                <span className="h2">Distribuição</span>
+              </div>
+              <div className="chart-card glass distribution-card">
+                <div className="seg distribution-controls">
+                  <button className="on green" style={pieType === 'income' ? {} : { opacity: 0.5 }} onClick={() => setPieType('income')}>Entradas</button>
+                  <button className="on red" style={pieType === 'expense' ? {} : { opacity: 0.5 }} onClick={() => setPieType('expense')}>Saídas</button>
+                </div>
+                <CategoryPie data={breakdown} height={135} compact />
+              </div>
+            </section>
+
+            <section className="section dashboard-recent-panel">
+              <div className="section-head">
+                <span className="h2">Movimentações recentes</span>
+                <span className="sub" onClick={() => (window.location.hash = '#/renda')}>ver todas</span>
+              </div>
+              <TransactionList transactions={recent} onEdit={(t) => openAdd(t.type, t)} onDelete={remove} />
+            </section>
+          </div>
         </>
       )}
     </>

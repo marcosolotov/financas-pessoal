@@ -153,14 +153,15 @@ export default function Settings() {
 
   return (
     <>
-      <header className="page-head">
-        <div className="title">
-          <small>Olá, {firstName}</small>
-          <span className="h1">Ajustes</span>
-        </div>
-      </header>
+      <div className="settings-page">
+        <header className="page-head">
+          <div className="title">
+            <small>Olá, {firstName}</small>
+            <span className="h1">Ajustes</span>
+          </div>
+        </header>
 
-      <section className="section">
+      <section className="section settings-account-section">
         <div className="section-head"><span className="h2">Conta</span></div>
         <div className="glass" style={{ padding: 16 }}>
           <div className="field">
@@ -177,36 +178,39 @@ export default function Settings() {
             <input className="input" type="password" value={pw} placeholder="Deixa em branco para manter" onChange={(e) => setPw(e.target.value)} />
           </div>
           <button className="btn" onClick={saveAccount} disabled={saving}>{saving ? 'Salvando…' : 'Salvar'}</button>
+          <button className="btn danger settings-logout" onClick={logout}>Sair da conta</button>
         </div>
       </section>
 
-      <section className="section">
+      <section className="section settings-categories-section">
         <div className="section-head">
           <span className="h2">Categorias</span>
         </div>
 
-        <div className="seg" style={{ marginBottom: 12 }}>
-          <button className={`on green ${catType === 'expense' ? '' : ''}`} style={catType === 'expense' ? {} : { opacity: 0.5 }} onClick={() => setCatType('expense')}>Saídas</button>
-          <button className={`on purple`} style={catType === 'income' ? {} : { opacity: 0.5 }} onClick={() => setCatType('income')}>Entradas</button>
-        </div>
+        <div className="glass settings-categories-card">
+          <div className="seg" style={{ marginBottom: 12 }}>
+            <button className={`on green ${catType === 'expense' ? '' : ''}`} style={catType === 'expense' ? {} : { opacity: 0.5 }} onClick={() => setCatType('expense')}>Saídas</button>
+            <button className="on purple" style={catType === 'income' ? {} : { opacity: 0.5 }} onClick={() => setCatType('income')}>Entradas</button>
+          </div>
 
-        <div className="list">
-          {cats.map((c) => (
-            <div className="row actions cat-row" key={c.id}>
-              <div className="swatch" style={{ background: c.color }} />
-              <div className="info"><div className="t">{c.name}</div></div>
-              <button className="sheet-x" style={{ width: 30, height: 30 }} onClick={() => setModal({ open: true, item: c, type: catType })}>✎</button>
-              <button className="del" onClick={() => deleteCategory(c, cats)}>✕</button>
-            </div>
-          ))}
-          {cats.length === 0 && <div className="empty">Nenhuma categoria</div>}
+          <div className="list">
+            {cats.map((c) => (
+              <div className="row actions cat-row" key={c.id}>
+                <div className="swatch" style={{ background: c.color }} />
+                <div className="info"><div className="t">{c.name}</div></div>
+                <button className="sheet-x" style={{ width: 30, height: 30 }} onClick={() => setModal({ open: true, item: c, type: catType })}>✎</button>
+                <button className="del" onClick={() => deleteCategory(c, cats)}>✕</button>
+              </div>
+            ))}
+            {cats.length === 0 && <div className="empty">Nenhuma categoria</div>}
+          </div>
+          <button className="btn ghost" style={{ marginTop: 12 }} onClick={() => setModal({ open: true, item: null, type: catType })}>
+            ＋ Nova categoria de {catType === 'expense' ? 'saída' : 'entrada'}
+          </button>
         </div>
-        <button className="btn ghost" style={{ marginTop: 12 }} onClick={() => setModal({ open: true, item: null, type: catType })}>
-          ＋ Nova categoria de {catType === 'expense' ? 'saída' : 'entrada'}
-        </button>
       </section>
 
-      <section className="section">
+      <section className="section settings-backup-section">
         <div className="section-head">
           <span className="h2">Backup e relatórios</span>
         </div>
@@ -239,7 +243,7 @@ export default function Settings() {
         </div>
       </section>
 
-      <button className="btn danger" onClick={logout}>Sair da conta</button>
+      </div>
 
       <CategoryModal open={modal.open} item={modal.item} type={modal.type} onClose={() => setModal((m) => ({ ...m, open: false }))} />
     </>
